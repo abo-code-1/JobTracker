@@ -59,8 +59,9 @@ files touched: the diff already says that.
 
 ## Where we are
 
-**Done: 8 tasks · 83 tests green · console demo runs · applications persist to a file.**
-**Next up: T-09 and T-10 — they touch different packages, so both can start at once.**
+**Done: 10 of 11 tasks · 109 tests green.** Only T-09, the interactive console
+menu, is left. Everything else the tracker can do is reachable from the demo.
+**Next up: T-09 — the last one on the board. Add new tasks below it as we think of them.**
 
 ---
 
@@ -77,8 +78,8 @@ files touched: the diff already says that.
 | T-07 | Save and load applications from a file | A | `DONE` | `fbda8d3` |
 | T-08 | Search, filter and sort applications | A | `DONE` | `bc62687` |
 | T-09 | Interactive console menu | — | `TODO` | |
-| T-10 | Find stale applications waiting too long | — | `TODO` | |
-| T-11 | Per-company statistics | — | `TODO` | |
+| T-10 | Find stale applications waiting too long | A | `DONE` | `4b7dc96` |
+| T-11 | Per-company statistics | A | `DONE` | `e85d087` |
 
 ---
 
@@ -160,40 +161,66 @@ to be able to type at it.
 
 ---
 
-## T-10 · Find stale applications waiting too long
+## T-10 · Find stale applications waiting too long  ✅ DONE
 
-**Suggested owner:** B · **Depends on:** nothing · **Blocks:** nothing
+**Owner:** A · **Depends on:** nothing · **Blocks:** nothing
 
 The tracker knows when each status change happened but never uses it. The most
 useful thing it could tell a job seeker is which companies have gone quiet.
 
-- [ ] `StaleApplicationFinder` listing `APPLIED` applications whose last change
-      is older than a given number of days
-- [ ] Days elapsed computed from the injected `Clock`, never `Instant.now()`
-- [ ] Closed applications are never stale, however old they are
-- [ ] Tests use a fixed clock and check the boundary exactly: at 13 days not
+- [x] `StaleApplicationFinder` listing applications whose last change is older
+      than a given number of days
+- [x] Days elapsed computed from the injected `Clock`, never `Instant.now()`
+- [x] Closed applications are never stale, however old they are
+- [x] Tests use a movable clock and check the boundary exactly: at 13 days not
       stale, at 14 days stale
+- [x] Extra: results come back longest-silence-first, wrapped in
+      `WaitingApplication` so every screen shows the same number of days
+
+**Widened on purpose:** the board said `APPLIED` only, but `INTERVIEWING` also
+waits on the company and going quiet after an interview is the common case.
+`DRAFT` is excluded — it waits on the candidate — and so are closed
+applications.
 
 **Files:** `src/main/java/com/endev/jobtracker/service/StaleApplicationFinder.java`,
 matching test.
 
 ---
 
-## T-11 · Per-company statistics
+## T-11 · Per-company statistics  ✅ DONE
 
-**Suggested owner:** either, once T-08 and T-10 are in
+**Owner:** A
 
 `PipelineReport` covers the whole pipeline but cannot say which companies are
 worth the effort.
 
-- [ ] Applications grouped by company, with a per-company status breakdown
-- [ ] Average days from `APPLIED` to the first reply, computed from history
-- [ ] Companies that never replied are reported as such, not silently counted
+- [x] Applications grouped by company, with a per-company status breakdown
+- [x] Average days from `APPLIED` to the first reply, computed from history
+- [x] Companies that never replied are reported as such, not silently counted
       as an average of zero
-- [ ] `PipelinePrinter` renders the breakdown under the existing summary
-- [ ] Tests for a company with several applications, and for one that never
+- [x] `PipelinePrinter.renderByCompany` renders the breakdown; the demo prints
+      it under the existing summary
+- [x] Tests for a company with several applications, and for one that never
       replied
+- [x] Extra: companies match ignoring case, so one company is one row; a
+      withdrawal is not counted as a reply
 
-**Files:** `src/main/java/com/endev/jobtracker/service/CompanyReport.java`, an
-addition to `PipelinePrinter`, matching tests. Coordinate with whoever last
-touched `PipelinePrinter`.
+**Also in this commit:** the demo drives its own clock. On the system clock
+every step landed in the same microsecond and every reply time printed as
+`0.0 days`.
+
+**Files:** `service/CompanyReport.java`, `service/CompanyStats.java`, an
+addition to `PipelinePrinter`, matching tests.
+
+---
+
+## Ideas, not yet tasks
+
+Pick one up by giving it a T- number and writing acceptance criteria first.
+
+- Persist the real registration time and the status history, so date sorting and
+  reply times survive a restart (today a loaded application carries the load
+  time as its `createdAt`).
+- Notes and a contact person on an application.
+- Export the pipeline as CSV for a spreadsheet.
+- A follow-up reminder date, separate from "gone quiet".
