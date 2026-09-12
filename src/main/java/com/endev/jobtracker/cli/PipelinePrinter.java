@@ -2,6 +2,8 @@ package com.endev.jobtracker.cli;
 
 import com.endev.jobtracker.JobApplication;
 import com.endev.jobtracker.JobApplicationStatus;
+import com.endev.jobtracker.service.CompanyReport;
+import com.endev.jobtracker.service.CompanyStats;
 import com.endev.jobtracker.service.PipelineReport;
 
 import java.util.List;
@@ -96,5 +98,57 @@ public final class PipelinePrinter {
     /** Rounded whole percent, formatted without depending on the machine's locale. */
     private static String percent(double rate) {
         return Math.round(rate * 100) + "%";
+    }
+
+    /**
+     * Renders the per-company breakdown, busiest company first.
+     *
+     * <p>A company that has never answered is shown as such rather than as a
+     * reply time of zero, which would put the silent companies at the top of
+     * the fastest list.
+     */
+    public String renderByCompany(CompanyReport report) {
+        List<CompanyStats> rows = report.byCompany();
+        StringBuilder out = new StringBuilder();
+        out.append("BY COMPANY").append(System.lineSeparator());
+        if (rows.isEmpty()) {
+            out.append("  Nothing to break down yet.").append(System.lineSeparator());
+            return out.toString();
+        }
+
+        int nameWidth = "COMPANY".length();
+        for (CompanyStats row : rows) {
+            nameWidth = Math.max(nameWidth, row.company().length());
+        }
+
+        appendCompanyRow(out, nameWidth, "COMPANY", "TOTAL", "OPEN", "OFFERS", "AVG REPLY");
+        for (CompanyStats row : rows) {
+            appendCompanyRow(out, nameWidth,
+                    row.company(),
+                    String.valueOf(row.total()),
+                    String.valueOf(row.open()),
+                    String.valueOf(row.offers()),
+                    replyTime(row));
+        }
+        return out.toString();
+    }
+
+    private void appendCompanyRow(StringBuilder out, int nameWidth, String company,
+                                  String total, String open, String offers, String reply) {
+        out.append(pad(company, nameWidth + 2))
+                .append(pad(total, 7))
+                .append(pad(open, 6))
+                .append(pad(offers, 8))
+                .append(reply)
+                .append(System.lineSeparator());
+    }
+
+    /** One decimal place, built without String.format so a comma locale cannot change it. */
+    private static String replyTime(CompanyStats row) {
+        if (!row.hasReplied()) {
+            return "no reply yet";
+        }
+        double days = row.averageDaysToFirstReply().orElseThrow();
+        return Math.round(days * 10) / 10.0 + " days";
     }
 }
