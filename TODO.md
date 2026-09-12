@@ -59,8 +59,8 @@ files touched: the diff already says that.
 
 ## Where we are
 
-**Done: 7 tasks · 70 tests green · console demo runs · applications persist to a file.**
-**Next up: T-08 and T-10 — they touch different files, so both can start at once.**
+**Done: 8 tasks · 83 tests green · console demo runs · applications persist to a file.**
+**Next up: T-09 and T-10 — they touch different packages, so both can start at once.**
 
 ---
 
@@ -75,7 +75,7 @@ files touched: the diff already says that.
 | T-05 | Service layer + `PipelineReport` | A | `DONE` | `63b4a5b` |
 | T-06 | Console demo + `PipelinePrinter` | A | `DONE` | `02761f1` |
 | T-07 | Save and load applications from a file | A | `DONE` | `fbda8d3` |
-| T-08 | Search, filter and sort applications | — | `TODO` | |
+| T-08 | Search, filter and sort applications | A | `DONE` | `bc62687` |
 | T-09 | Interactive console menu | — | `TODO` | |
 | T-10 | Find stale applications waiting too long | — | `TODO` | |
 | T-11 | Per-company statistics | — | `TODO` | |
@@ -112,20 +112,27 @@ matching test. Do not change `JobApplicationRepository` itself without telling B
 
 ---
 
-## T-08 · Search, filter and sort applications
+## T-08 · Search, filter and sort applications  ✅ DONE
 
-**Suggested owner:** B · **Depends on:** nothing · **Blocks:** nothing
+**Owner:** A · **Depends on:** nothing · **Blocks:** nothing
 
 With twenty applications, `findAll()` is a wall of text. We need to ask real
 questions: everything at Kaspi, everything still open, oldest first.
 
-- [ ] `ApplicationQuery` holding optional filters: company, position keyword,
+- [x] `ApplicationQuery` holding optional filters: company, position keyword,
       set of statuses, "registered after" instant
-- [ ] Case-insensitive, partial matching on company and position
-- [ ] Sorting by registration date and by company name
-- [ ] `JobApplicationService.search(ApplicationQuery)` returning the matches
-- [ ] Tests for each filter alone, two filters combined, and a query that
+- [x] Case-insensitive, partial matching on company and position
+- [x] Sorting by registration date (`OLDEST_FIRST`, `NEWEST_FIRST`) and by
+      company name (`COMPANY`), ties left in registration order
+- [x] `JobApplicationService.search(ApplicationQuery)` returning the matches
+- [x] Tests for each filter alone, two filters combined, and a query that
       matches nothing (empty list, never `null`)
+- [x] Extra: the query is immutable, so one can be built up in steps and reused;
+      a blank keyword is refused rather than quietly matching everything
+
+**Note for T-09 and T-11:** applications loaded from a file all carry the load
+time as their `createdAt`, so date sorting is only meaningful within a single
+run. Persisting the real registration time would be its own task.
 
 **Files:** `src/main/java/com/endev/jobtracker/service/ApplicationQuery.java`,
 one new method on `JobApplicationService`, matching test.
