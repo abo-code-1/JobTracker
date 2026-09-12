@@ -93,6 +93,19 @@ public final class JobApplicationService {
                 .toList();
     }
 
+    /**
+     * The applications matching {@code query}, in the order the query asks for.
+     *
+     * @return the matches, or an empty list when nothing matches — never {@code null}
+     */
+    public List<JobApplication> search(ApplicationQuery query) {
+        Objects.requireNonNull(query, "Query is required");
+        return repository.findAll().stream()
+                .filter(query::matches)
+                .sorted(query.comparator())
+                .toList();
+    }
+
     /** A snapshot of how many applications sit at each status, and the resulting rates. */
     public PipelineReport report() {
         List<JobApplication> all = repository.findAll();
