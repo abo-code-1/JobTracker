@@ -59,8 +59,8 @@ files touched: the diff already says that.
 
 ## Where we are
 
-**Done: 6 commits · 58 tests green · console demo runs.**
-**Next up: T-06 and T-07 — they touch different packages, so both can start at once.**
+**Done: 7 tasks · 70 tests green · console demo runs · applications persist to a file.**
+**Next up: T-08 and T-10 — they touch different files, so both can start at once.**
 
 ---
 
@@ -74,7 +74,7 @@ files touched: the diff already says that.
 | T-04 | Status change history with an injectable `Clock` | A | `DONE` | `09d043a` |
 | T-05 | Service layer + `PipelineReport` | A | `DONE` | `63b4a5b` |
 | T-06 | Console demo + `PipelinePrinter` | A | `DONE` | `02761f1` |
-| T-07 | Save and load applications from a file | — | `TODO` | |
+| T-07 | Save and load applications from a file | A | `DONE` | `fbda8d3` |
 | T-08 | Search, filter and sort applications | — | `TODO` | |
 | T-09 | Interactive console menu | — | `TODO` | |
 | T-10 | Find stale applications waiting too long | — | `TODO` | |
@@ -82,23 +82,30 @@ files touched: the diff already says that.
 
 ---
 
-## T-07 · Save and load applications from a file
+## T-07 · Save and load applications from a file  ✅ DONE
 
-**Suggested owner:** A · **Depends on:** nothing · **Blocks:** T-09
+**Owner:** A · **Depends on:** nothing · **Blocks:** T-09
 
 Everything disappears when the program exits, which makes the tracker useless
 for its actual purpose: watching an application over the weeks it takes a
 company to answer.
 
-- [ ] `FileJobApplicationRepository implements JobApplicationRepository`, writing
-      one line per application to a plain text file
-- [ ] Load an existing file on construction; an absent file means an empty
+- [x] `FileJobApplicationRepository implements JobApplicationRepository`, writing
+      one line per application as tab separated text
+- [x] Load an existing file on construction; an absent file means an empty
       tracker, not a crash
-- [ ] A malformed line names the file and the line number in the message rather
-      than throwing a bare `NumberFormatException`
-- [ ] Round-trip test: save applications, load them into a new instance, get the
+- [x] A malformed line names the file and the line number in the message rather
+      than throwing a bare enum or number parsing error
+- [x] Round-trip test: save applications, load them into a new instance, get the
       same data back
-- [ ] Tests use JUnit's `@TempDir` — never write into the project directory
+- [x] Tests use JUnit's `@TempDir` — never write into the project directory
+- [x] Extra: a value holding a tab or line break is refused on write, and
+      `StorageException` keeps `IOException` out of the repository interface
+
+**Known limit:** only the current state is stored (id, company, position,
+status). Status history is not persisted, the same as for an application
+rebuilt with `JobApplication.at(...)`. Persisting history would be its own
+task.
 
 **Files:** `src/main/java/com/endev/jobtracker/repository/FileJobApplicationRepository.java`,
 matching test. Do not change `JobApplicationRepository` itself without telling B.
