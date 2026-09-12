@@ -52,4 +52,19 @@ public final class JobApplicationPolicy {
         }
         return to;
     }
+
+    /**
+     * The statuses an application currently in {@code from} may legally move to.
+     * An empty set means {@code from} is a final status.
+     *
+     * @param from the current status of the application
+     * @return the allowed target statuses, never {@code null}
+     * @throws IllegalArgumentException if {@code from} is {@code null}
+     */
+    public Set<JobApplicationStatus> allowedFrom(JobApplicationStatus from) {
+        if (from == null) {
+            throw new IllegalArgumentException("The current status is required");
+        }
+        return ALLOWED.get(from);
+    }
 }
